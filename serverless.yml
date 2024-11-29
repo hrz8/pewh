@@ -1,0 +1,69 @@
+org: hrz88
+service: pewh
+frameworkVersion: ^4.4.13
+
+provider:
+  name: aws
+  runtime: go1.x
+  region: us-east-1
+  stage: ${opt:stage, 'local'}
+
+custom:
+  stage: ${opt:stage, 'local'}
+  localstack:
+    debug: true
+    stages:
+      - local
+    host: http://localhost
+    edgePort: 4566
+    lambda:
+      mountCode: true
+
+plugins:
+  - serverless-localstack
+
+package:
+  individually: true
+  patterns:
+    - '!./**'
+    - 'bin/**'
+
+functions:
+  restapi:
+    handler: bin/restapi
+    events:
+    - http:
+        method: get
+        path: /api/v1/rooms
+        cors:
+          origin: '*'
+    - http:
+        method: get
+        path: /api/v1/rooms/another
+        cors:
+          origin: '*'
+  bookingCreated:
+    handler: bin/bookingCreated
+    events:
+      - sns:
+          arn: !Ref BookingCreated
+          topicName: booking-created-${sls:stage}
+  bookingPaid:
+    handler: bin/bookingPaid
+    events:
+      - sns:
+          arn: !Ref BookingPaid
+          topicName: booking-paid-${sls:stage}
+
+resources:
+  Resources:
+    BookingCreated:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: 'Booking Created'
+        TopicName: booking-created-${sls:stage}
+    BookingPaid:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: 'Booking Paid'
+        TopicName: booking-paid-${sls:stage}
