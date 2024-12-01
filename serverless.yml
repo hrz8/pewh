@@ -1,12 +1,15 @@
 org: hrz88
 service: pewh
+
 frameworkVersion: ^4.4.13
+configValidationMode: error
 
 provider:
   name: aws
-  runtime: go1.x
-  region: us-east-1
+  runtime: provided.al2
+  architecture: arm64
   stage: ${opt:stage, 'local'}
+  region: ${opt:region, 'us-east-1'}
 
 custom:
   stage: ${opt:stage, 'local'}
@@ -17,20 +20,19 @@ custom:
     host: http://localhost
     edgePort: 4566
     lambda:
-      mountCode: true
+      mountCode: false
 
 plugins:
   - serverless-localstack
 
 package:
   individually: true
-  patterns:
-    - '!./**'
-    - 'bin/**'
 
 functions:
   restapi:
-    handler: bin/restapi
+    handler: bootstrap
+    package:
+      artifact: bin/restapi.zip
     events:
     - http:
         method: get
@@ -43,13 +45,17 @@ functions:
         cors:
           origin: '*'
   bookingCreated:
-    handler: bin/bookingCreated
+    handler: bootstrap
+    package:
+      artifact: bin/bookingCreated.zip
     events:
       - sns:
           arn: !Ref BookingCreated
           topicName: booking-created-${sls:stage}
   bookingPaid:
-    handler: bin/bookingPaid
+    handler: bootstrap
+    package:
+      artifact: bin/bookingPaid.zip
     events:
       - sns:
           arn: !Ref BookingPaid
