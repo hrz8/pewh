@@ -10,11 +10,15 @@ provider:
   architecture: arm64
   stage: ${opt:stage, 'local'}
   region: ${opt:region, 'us-east-1'}
+  httpApi:
+    cors:
+      allowedOrigins:
+        - '*'
 
 custom:
   stage: ${opt:stage, 'local'}
   localstack:
-    debug: true
+    debug: false
     stages:
       - local
     host: http://localhost
@@ -34,16 +38,25 @@ functions:
     package:
       artifact: bin/restapi.zip
     events:
-    - http:
-        method: get
+    - httpApi:
+        method: GET
         path: /api/v1/rooms
-        cors:
-          origin: '*'
-    - http:
-        method: get
+    - httpApi:
+        method: GET
         path: /api/v1/rooms/another
-        cors:
-          origin: '*'
+  websocket:
+      handler: bootstrap
+      package:
+        artifact: bin/websocket.zip
+      events:
+      - websocket:
+          route: $connect
+      - websocket:
+          route: $disconnect
+      - websocket:
+          route: publish
+      - websocket:
+          route: $default
   bookingCreated:
     handler: bootstrap
     package:

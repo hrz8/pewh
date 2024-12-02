@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-var ginLambda *adapter.GinLambda
+var ginLambda *adapter.GinLambdaV2
 
 func init() {
 	router := gin.Default()
@@ -28,10 +28,10 @@ func init() {
 		})
 	}
 
-	ginLambda = adapter.New(router)
+	ginLambda = adapter.NewV2(router)
 }
 
-func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	return ginLambda.ProxyWithContext(ctx, request)
 }
 

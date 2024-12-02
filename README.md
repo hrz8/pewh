@@ -42,7 +42,7 @@ awslocal lambda invoke --profile localstack \
 
 ### thru publish sns
 ```sh
-awslocal sns publish --profile localstack \  
+awslocal sns publish --profile localstack \
   --topic-arn arn:aws:sns:us-east-1:000000000000:booking-created-local \
   --message '{"key": "value"}'
 awslocal sns publish --profile localstack \

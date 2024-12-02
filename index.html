@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  </head>
+  <h1>WebSocket Client</h1>
+
+  <div id="app">
+    <textarea v-model="message" placeholder="Type your message"></textarea>
+    <button @click="send">Send</button>
+    <pre>{{ messages.join('\n') }}</pre>
+  </div>
+
+  <script>
+    const { createApp, ref } = Vue;
+    const App = {
+      setup() {
+        const message = ref('');
+        const messages = ref([]);
+
+        const appId = 'your-app-id';
+        const wsEndpoint = `ws://localhost.localstack.cloud:4510?appid=${encodeURIComponent(appId)}`;
+        const websocket = new WebSocket(wsEndpoint);
+
+        function addMessage(msg) {
+          messages.value = [...messages.value, msg];
+        }
+
+        websocket.onopen = () => {
+          addMessage('onopen: Connected successfully.');
+        };
+
+        websocket.onmessage = (payload) => {
+          if (payload.data === '') {
+            addMessage(`onmessage: ${JSON.stringify(payload)}`);
+            return;
+          }
+          addMessage(`onmessage:server: ${payload.data}`);
+        };
+
+        websocket.onerror = (error) => {
+          console.error(error);
+          addMessage('onerror: An error has occurred. See console for details.');
+        };
+
+        websocket.onclose = (payload) => {
+          addMessage(`onclose: ${JSON.stringify(payload)}`);
+        };
+
+        function send() {
+          if (message.value.trim() === "") {
+            addMessage("client: Cannot send an empty message.");
+            return;
+          }
+          const payload = {message: message.value};
+          addMessage(`client: Sending a message: ${JSON.stringify(payload)}`);
+          websocket.send(JSON.stringify({ action: 'publish', data: payload }));
+          message.value = '';
+        }
+
+        return {
+          message,
+          messages,
+          send,
+        };
+      },
+    };
+
+    const app = createApp(App);
+    app.mount('#app');
+  </script>
+</html>
