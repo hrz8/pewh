@@ -68,4 +68,8 @@ aws lambda invoke --endpoint-url http://localhost:4566 --profile localstack --fu
 aws lambda invoke --endpoint-url http://localhost:4566 --profile localstack --function-name pewh-local-bookingPaid --payload fileb://input.json /dev/stdout
 ```
 
+### invoke directly to lambda sqs
+```sh
 aws lambda invoke --endpoint-url http://localhost:4566 --profile localstack --function-name pewh-local-bookingCanceled --payload fileb://input.json /dev/stdout
+aws lambda invoke --endpoint-url http://localhost:4566 --profile localstack --function-name pewh-local-checkInStarted --payload fileb://input.json /dev/stdout
+```

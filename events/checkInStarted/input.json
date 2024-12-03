@@ -8,7 +8,8 @@
         "ApproximateReceiveCount": "1",
         "SentTimestamp": "1612263849386",
         "SenderId": "123456789012",
-        "ApproximateFirstReceiveTimestamp": "1612263849395"
+        "ApproximateFirstReceiveTimestamp": "1612263849395",
+        "MessageGroupId": "group-1"
       },
       "messageAttributes": {},
       "md5OfBody": "9b9c5d9cbe8765a592d2cf8f67fe51ad",
