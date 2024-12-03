@@ -1,0 +1,20 @@
+{
+  "Records": [
+    {
+      "messageId": "1a2b3c4d-1234-5678-abcd-1234567890ab",
+      "receiptHandle": "AQEBwJn3w5jN6yzMlqZkTbhHP8hI2uPRAol2kT1czYNdHgPqF4FeTmO6DZLl2XH5w4PczKxgPfaIuw1Tfwz1STfb79Fs0IE7hF9z3sdd3s1Xe1wFvnt9ttqxV0YZY5h+g/0yuy6nOwo0Mf0Zy0esZoOp67uRbgnZJ9g1bgWw9yt0ct8HpCC8fZblDrFMOSw1fFQ2+qE4Af6e5YEnSsqnkN3kKmn6sIHUPwqGdQ==",
+      "body": "{\"key\": \"value\", \"status\": \"canceled\"}",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1612263849386",
+        "SenderId": "123456789012",
+        "ApproximateFirstReceiveTimestamp": "1612263849395"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "9b9c5d9cbe8765a592d2cf8f67fe51ad",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:us-east-1:000000000000:booking-canceled-local",
+      "awsRegion": "us-east-1"
+    }
+  ]
+}

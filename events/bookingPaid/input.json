@@ -1,0 +1,22 @@
+{
+  "Records": [
+    {
+      "EventSource": "aws:sns",
+      "EventVersion": "1.0",
+      "EventSubscriptionArn": "arn:aws:sns:us-east-1:000000000000:booking-paid-local",
+      "Sns": {
+        "Type": "Notification",
+        "MessageId": "12345678-1234-5678-9012-123456789012",
+        "TopicArn": "arn:aws:sns:us-east-1:000000000000:booking-paid-local",
+        "Subject": null,
+        "Message": "{\"key\": \"value paid\"}",
+        "Timestamp": "2024-11-29T10:30:00.000Z",
+        "SignatureVersion": "1",
+        "Signature": "EXAMPLESIGNATURE",
+        "SigningCertUrl": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService.pem",
+        "UnsubscribeUrl": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:000000000000:booking-paid-local",
+        "MessageAttributes": {}
+      }
+    }
+  ]
+}

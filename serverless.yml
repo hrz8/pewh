@@ -73,6 +73,28 @@ functions:
       - sns:
           arn: !Ref BookingPaid
           topicName: booking-paid-${sls:stage}
+  bookingCanceled:
+    handler: bootstrap
+    package:
+      artifact: bin/bookingCanceled.zip
+    reservedConcurrency: 1
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - BookingCanceled
+              - Arn
+  checkInStarted:
+    handler: bootstrap
+    package:
+      artifact: bin/checkInStarted.zip
+    reservedConcurrency: 30
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - CheckInStarted
+              - Arn
 
 resources:
   Resources:
@@ -86,3 +108,30 @@ resources:
       Properties:
         DisplayName: 'Booking Paid'
         TopicName: booking-paid-${sls:stage}
+    BookingCanceled:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: booking-canceled-${sls:stage}
+        MessageRetentionPeriod: 86400
+        VisibilityTimeout: 120
+    CheckInStarted:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: check-in-started-${sls:stage}.fifo
+        FifoQueue: true
+        ContentBasedDeduplication: true
+        MessageRetentionPeriod: 21600
+        VisibilityTimeout: 15
+        RedrivePolicy:
+          deadLetterTargetArn:
+            Fn::GetAtt:
+              - CheckInStartedDlq
+              - Arn
+          maxReceiveCount: 5
+    CheckInStartedDlq:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: check-in-started-dlq-${sls:stage}.fifo
+        FifoQueue: true
+        ContentBasedDeduplication: true
+        MessageRetentionPeriod: 1209600

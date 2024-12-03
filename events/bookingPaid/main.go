@@ -13,6 +13,7 @@ import (
 func handler(_ context.Context, snsEvent events.SNSEvent) error {
 	for _, record := range snsEvent.Records {
 		snsMessage := record.SNS.Message
+		fmt.Printf("Message ID: %s\n", "N/A")
 		fmt.Printf("Received message: %s\n", snsMessage)
 
 		var payload map[string]interface{}

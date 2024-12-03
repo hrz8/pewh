@@ -42,63 +42,30 @@ awslocal lambda invoke --profile localstack \
 
 ### thru publish sns
 ```sh
-awslocal sns publish --profile localstack \
-  --topic-arn arn:aws:sns:us-east-1:000000000000:booking-created-local \
-  --message '{"key": "value"}'
-awslocal sns publish --profile localstack \
-  --topic-arn arn:aws:sns:us-east-1:000000000000:booking-paid-local \
-  --message '{"key": "value"}'
+aws sns publish --endpoint-url http://localhost:4566 --profile localstack \
+    --topic-arn arn:aws:sns:us-east-1:000000000000:booking-created-local \
+    --message '{"key": "value"}'
+aws sns publish --endpoint-url http://localhost:4566 --profile localstack \
+    --topic-arn arn:aws:sns:us-east-1:000000000000:booking-paid-local \
+    --message '{"key": "value"}'
 ```
 
-### invoke directly to lambda
+### thru publish sqs
 ```sh
-awslocal lambda invoke --profile localstack \
-  --function-name pewh-local-bookingCreated \
-  --payload '{
-    "Records": [
-      {
-        "EventSource": "aws:sns",
-        "EventVersion": "1.0",
-        "EventSubscriptionArn": "arn:aws:sns:us-east-1:000000000000:booking-created-local",
-        "Sns": {
-          "Type": "Notification",
-          "MessageId": "12345678-1234-5678-9012-123456789012",
-          "TopicArn": "arn:aws:sns:us-east-1:000000000000:booking-created-local",
-          "Subject": null,
-          "Message": "{\"key\": \"value\"}",
-          "Timestamp": "2024-11-29T10:30:00.000Z",
-          "SignatureVersion": "1",
-          "Signature": "EXAMPLESIGNATURE",
-          "SigningCertUrl": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService.pem",
-          "UnsubscribeUrl": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:000000000000:booking-created-local",
-          "MessageAttributes": {}
-        }
-      }
-    ]
-  }' /dev/stdout
-awslocal lambda invoke --profile localstack \
-  --function-name pewh-local-bookingPaid \
-  --payload '{
-    "Records": [
-      {
-        "EventSource": "aws:sns",
-        "EventVersion": "1.0",
-        "EventSubscriptionArn": "arn:aws:sns:us-east-1:000000000000:booking-paid-local",
-        "Sns": {
-          "Type": "Notification",
-          "MessageId": "12345678-1234-5678-9012-123456789012",
-          "TopicArn": "arn:aws:sns:us-east-1:000000000000:booking-paid-local",
-          "Subject": null,
-          "Message": "{\"key\": \"value\"}",
-          "Timestamp": "2024-11-29T10:30:00.000Z",
-          "SignatureVersion": "1",
-          "Signature": "EXAMPLESIGNATURE",
-          "SigningCertUrl": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService.pem",
-          "UnsubscribeUrl": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:000000000000:booking-paid-local",
-          "MessageAttributes": {}
-        }
-      }
-    ]
-  }' /dev/stdout
+aws sqs send-message --endpoint-url http://localhost:4566 --profile localstack \
+    --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/booking-canceled-local \
+    --message-body '{"key": "value", "status": "canceled"}'
+# using fifo
+aws sqs send-message --endpoint-url http://localhost:4566 --profile localstack \
+    --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/check-in-started-local.fifo \
+    --message-body '{"key": "value"}' \
+    --message-group-id "group-1"
 ```
 
+### invoke directly to lambda sns
+```sh
+aws lambda invoke --endpoint-url http://localhost:4566 --profile localstack --function-name pewh-local-bookingCreated --payload fileb://input.json /dev/stdout
+aws lambda invoke --endpoint-url http://localhost:4566 --profile localstack --function-name pewh-local-bookingPaid --payload fileb://input.json /dev/stdout
+```
+
+aws lambda invoke --endpoint-url http://localhost:4566 --profile localstack --function-name pewh-local-bookingCanceled --payload fileb://input.json /dev/stdout
