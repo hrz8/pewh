@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,6 +15,13 @@ import (
 
 var awsCli *awssdk.AWSSDKClient
 
+type Body struct {
+	Action string `json:"action"`
+	Data   struct {
+		Message string `json:"message"`
+	} `json:"data"`
+}
+
 func handler(_ context.Context, request events.APIGatewayWebsocketProxyRequest) (events.APIGatewayProxyResponse, error) {
 	awsCli = awssdk.New()
 
@@ -24,22 +32,27 @@ func handler(_ context.Context, request events.APIGatewayWebsocketProxyRequest) 
 
 	switch request.RequestContext.RouteKey {
 	case "$connect":
-		log.Printf("Connection ID: %s connected", connectionID)
+		log.Printf("Connection ID: %s connected\n", connectionID)
 		return events.APIGatewayProxyResponse{
 			StatusCode: http.StatusOK,
 		}, nil
 
 	case "$disconnect":
-		log.Printf("Connection ID: %s disconnected", connectionID)
+		log.Printf("Connection ID: %s disconnected\n", connectionID)
 		return events.APIGatewayProxyResponse{
 			StatusCode: http.StatusOK,
 		}, nil
 
 	case "publish":
-		log.Printf("Received message: %s", request.Body)
+		log.Printf("Received body raw: %s\n", request.Body)
+		var body Body
+		if err := json.Unmarshal([]byte(request.Body), &body); err != nil {
+			log.Printf("Error parsing body: %v\n", err)
+		}
+		fmt.Printf("Received parsed body: %v\n", body)
 		go func() {
 			time.Sleep(5 * time.Second)
-			log.Printf("Replying message for: %s", connectionID)
+			log.Printf("Replying message for: %s\n", connectionID)
 			awsCli.PostToConnection(connectionID, struct {
 				Reply string `json:"reply"`
 			}{
@@ -48,10 +61,11 @@ func handler(_ context.Context, request events.APIGatewayWebsocketProxyRequest) 
 		}()
 		return events.APIGatewayProxyResponse{
 			StatusCode: http.StatusOK,
+			Body:       "success",
 		}, nil
 
 	default:
-		log.Printf("Unknown route: %s", request.RequestContext.RouteKey)
+		log.Printf("Unknown route: %s\n", request.RequestContext.RouteKey)
 		return events.APIGatewayProxyResponse{
 			StatusCode: http.StatusBadRequest,
 			Body:       "Unknown route",
