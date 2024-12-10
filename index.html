@@ -23,7 +23,6 @@
 
         const appId = 'your-app-id';
         const wsEndpoint = `ws://localhost.localstack.cloud:4510?appid=${encodeURIComponent(appId)}`;
-        // const wsEndpoint = `wss://cnkbxuszwa.execute-api.ap-southeast-1.amazonaws.com/production/?appid=13685d28-b6bb-4294-b031-938417b56e2a&user=hirzi.n@archipelagohotels.com&token=abc`;
 
         onMounted(() => {
           initializeWebsocket();
