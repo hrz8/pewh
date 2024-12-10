@@ -43,6 +43,17 @@ func handler(_ context.Context, request events.APIGatewayWebsocketProxyRequest) 
 			StatusCode: http.StatusOK,
 		}, nil
 
+	case "ping":
+		awsCli.PostToConnection(connectionID, struct {
+			Reply string `json:"reply"`
+		}{
+			Reply: "pong!",
+		})
+		return events.APIGatewayProxyResponse{
+			StatusCode: http.StatusOK,
+			Body:       "success",
+		}, nil
+
 	case "publish":
 		log.Printf("Received body raw: %s\n", request.Body)
 		var body Body
@@ -51,12 +62,15 @@ func handler(_ context.Context, request events.APIGatewayWebsocketProxyRequest) 
 		}
 		fmt.Printf("Received parsed body: %v\n", body)
 		go func() {
+			if body.Data.Message == "graceful" {
+				return
+			}
 			time.Sleep(5 * time.Second)
 			log.Printf("Replying message for: %s\n", connectionID)
 			awsCli.PostToConnection(connectionID, struct {
 				Reply string `json:"reply"`
 			}{
-				Reply: "pong!",
+				Reply: "this is the reply!",
 			})
 		}()
 		return events.APIGatewayProxyResponse{

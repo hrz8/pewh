@@ -12,40 +12,77 @@
   </div>
 
   <script>
-    const { createApp, ref } = Vue;
+    const { createApp, ref, onMounted } = Vue;
     const App = {
       setup() {
         const message = ref('');
         const messages = ref([]);
+        const isTabClosed = ref(false);
+        const websocket = ref(null);
+        let heartBeatInterval = ref(null);
 
         const appId = 'your-app-id';
         const wsEndpoint = `ws://localhost.localstack.cloud:4510?appid=${encodeURIComponent(appId)}`;
-        const websocket = new WebSocket(wsEndpoint);
+        // const wsEndpoint = `wss://cnkbxuszwa.execute-api.ap-southeast-1.amazonaws.com/production/?appid=13685d28-b6bb-4294-b031-938417b56e2a&user=hirzi.n@archipelagohotels.com&token=abc`;
+
+        onMounted(() => {
+          initializeWebsocket();
+
+          window.addEventListener('beforeunload', function() {
+            isTabClosed.value = true;
+            if (websocket.value) {
+              websocket.value.send(JSON.stringify({ action: 'publish', data: { message: 'graceful' }}));
+              websocket.value.close();
+            }
+          });
+        });
+
+        function initializeWebsocket() {
+          websocket.value = new WebSocket(wsEndpoint); 
+
+          websocket.value.onopen = () => {
+            addMessage('onopen: Connected successfully.');
+            startHeartBeat();
+          };
+
+          websocket.value.onmessage = (payload) => {
+            const data = JSON.parse(payload.data);
+            if (data.reply === "pong!") {
+              return;
+            }
+            if (payload.data === '') {
+              addMessage(`onmessage: ${JSON.stringify(payload)}`);
+              return;
+            }
+            addMessage(`onmessage:server: ${payload.data}`);
+          };
+
+          websocket.value.onerror = (error) => {
+            console.error(error);
+            addMessage('onerror: An error has occurred. See console for details.');
+          };
+
+          websocket.value.onclose = (payload) => {
+            clearInterval(heartBeatInterval);
+            addMessage(`onclose: ${JSON.stringify(payload)}`);
+            if (isTabClosed.value) {
+              addMessage('onclose: graceful closing ws connection');
+            } else {
+              addMessage('onclose: unexpected');
+              retryConnection();
+            }
+          };
+        }
+
+        function retryConnection() {
+          setTimeout(() => {
+            initializeWebsocket();
+          }, 4000);
+        }
 
         function addMessage(msg) {
           messages.value = [...messages.value, msg];
         }
-
-        websocket.onopen = () => {
-          addMessage('onopen: Connected successfully.');
-        };
-
-        websocket.onmessage = (payload) => {
-          if (payload.data === '') {
-            addMessage(`onmessage: ${JSON.stringify(payload)}`);
-            return;
-          }
-          addMessage(`onmessage:server: ${payload.data}`);
-        };
-
-        websocket.onerror = (error) => {
-          console.error(error);
-          addMessage('onerror: An error has occurred. See console for details.');
-        };
-
-        websocket.onclose = (payload) => {
-          addMessage(`onclose: ${JSON.stringify(payload)}`);
-        };
 
         function send() {
           if (message.value.trim() === "") {
@@ -54,8 +91,16 @@
           }
           const payload = {message: message.value};
           addMessage(`client: Sending a message: ${JSON.stringify(payload)}`);
-          websocket.send(JSON.stringify({ action: 'publish', data: payload }));
+          websocket.value.send(JSON.stringify({ action: 'publish', data: payload }));
           message.value = '';
+        }
+
+        function startHeartBeat() {
+          heartBeatInterval = setInterval(() => {
+            if (websocket.value?.readyState === WebSocket.OPEN) {
+              websocket.value.send(JSON.stringify({ action: 'ping' }));   
+            }
+          }, 10000);
         }
 
         return {

@@ -14,7 +14,7 @@ const (
 	Region          = "us-east-1"
 	AccessKeyID     = "test"
 	SecretAccessKey = "test"
-	Endpoint        = "https://109e43c7.execute-api.localhost.localstack.cloud:4566/local"
+	Endpoint        = "https://0bc3e525.execute-api.localhost.localstack.cloud:4566/local"
 )
 
 type AWSSDKClient struct {
