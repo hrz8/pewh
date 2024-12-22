@@ -21,8 +21,10 @@
         const websocket = ref(null);
         let heartBeatInterval = ref(null);
 
-        const appId = 'your-app-id';
-        const wsEndpoint = `ws://localhost.localstack.cloud:4510?appid=${encodeURIComponent(appId)}`;
+        const appId = '1cefb36e-7a66-4c4d-bb99-ce578c57dd7a';
+        // const wsEndpoint = `ws://00b5c381.execute-api.localhost.localstack.cloud:4566/local?user=abc@gmail.com&appid=${encodeURIComponent(appId)}`;
+        const wsEndpoint = `ws://localhost.localstack.cloud:4510/local?user=abc@gmail.com&appid=${encodeURIComponent(appId)}`;
+        // const wsEndpoint = `wss://cnkbxuszwa.execute-api.ap-southeast-1.amazonaws.com/production/?appid=13685d28-b6bb-4294-b031-938417b56e2a&user=hirzi.n@archipelagohotels.com&token=abc`;
 
         onMounted(() => {
           initializeWebsocket();

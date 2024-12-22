@@ -1,9 +1,10 @@
 # pewh
-Yeah right here I'm learning to use Serverless Framework with Golang.
+Yeah right here I'm learning to use Serverless Framework and AWS CDK with Golang.
 
 ## local development
 ```sh
 make deploy-local
+make deploy-local-cdk
 ```
 
 ## invoke restapi

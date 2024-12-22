@@ -23,3 +23,7 @@ zip: build
 
 deploy-local: zip
 	sls deploy --stage local
+
+deploy-local-cdk: zip
+	cdklocal bootstrap
+	cdklocal deploy "Local/*" --require-approval never --force
