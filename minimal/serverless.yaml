@@ -1,0 +1,41 @@
+service: greeter-service
+
+frameworkVersion: ^4.4.13
+configValidationMode: error
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  stage: ${opt:stage, 'local'}
+  region: ${opt:region, 'us-east-1'}
+  httpApi:
+    cors:
+      allowedOrigins:
+        - '*'
+
+package:
+  individually: true
+
+functions:
+  hello:
+    handler: bootstrap
+    package:
+      artifact: bin/hello.zip
+    events:
+    - httpApi:
+        method: GET
+        path: /hello
+
+custom:
+  localstack:
+    debug: false
+    stages:
+      - local
+    host: http://localhost
+    edgePort: 4566
+    lambda:
+      mountCode: false
+
+plugins:
+  - serverless-localstack
